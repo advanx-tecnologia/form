@@ -69,6 +69,13 @@
   }
 
   window.AdvanxTracking = { emit: emit };
+
+  /* Privacy-friendly analytics by Plausible */
+  window.plausible = window.plausible || function () { (plausible.q = plausible.q || []).push(arguments); };
+  window.plausible.init = window.plausible.init || function (i) { plausible.o = i || {}; };
+  window.plausible.init();
+  insert('https://plausible.advanx.com.br/js/pa-ZPWCAvctekoa0Gvj4hgz7.js');
+
   emit('page_view');
   emit('view_content');
 })(window, document);
