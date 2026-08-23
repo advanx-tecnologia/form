@@ -43,19 +43,19 @@
   function destinationEvent(name, data) {
     if (name === 'page_view') {
       window.fbq('track', 'PageView', data);
-      window.gtag('event', 'page_view', data);
+      window.gtag('event', 'page_view', Object.assign({ send_to: GA4_ID }, data));
     } else if (name === 'view_content') {
       window.fbq('track', 'ViewContent', data);
-      window.gtag('event', 'view_content', data);
+      window.gtag('event', 'view_content', Object.assign({ send_to: GA4_ID }, data));
     } else if (name === 'form_start') {
       window.fbq('trackCustom', 'FormStart', data);
-      window.gtag('event', 'form_start', data);
+      window.gtag('event', 'form_start', Object.assign({ send_to: GA4_ID }, data));
     } else if (name === 'generate_lead') {
       window.fbq('track', 'Lead', data);
-      window.gtag('event', 'generate_lead', data);
+      window.gtag('event', 'generate_lead', Object.assign({ send_to: GA4_ID }, data));
     } else if (name === 'schedule') {
       window.fbq('track', 'Schedule', data);
-      window.gtag('event', 'schedule', data);
+      window.gtag('event', 'schedule', Object.assign({ send_to: GA4_ID }, data));
     }
   }
 
