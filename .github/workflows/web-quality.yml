@@ -1,0 +1,23 @@
+name: Qualidade web
+
+on:
+  pull_request:
+    paths:
+      - '**/*.html'
+      - 'assets/**'
+      - 'css/**'
+      - 'js/**'
+      - 'scripts/**'
+      - 'styles/**'
+      - '.github/workflows/web-quality.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    uses: advanx-tecnologia/.github/.github/workflows/web-quality.yml@main
+    with:
+      mode: ${{ github.event_name == 'workflow_dispatch' && 'full' || 'changed' }}
+      max_pages: 12
