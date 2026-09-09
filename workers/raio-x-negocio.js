@@ -19,7 +19,7 @@ async function handle(request) {
   if (relativePath.includes('..')) return new Response('Not found', { status: 404 });
 
   const upstream = await fetch(`${SOURCE}${relativePath}`, {
-    cf: { cacheTtl: 60, cacheEverything: true },
+    cf: relativePath === 'index.html' ? { cacheTtl: 0 } : { cacheTtl: 3600, cacheEverything: true },
     headers: { 'User-Agent': 'Advanx Raio-X Form Publisher' },
   });
   if (!upstream.ok) return new Response('Not found', { status: upstream.status });
