@@ -32,6 +32,24 @@
     insert('https://connect.facebook.net/en_US/fbevents.js');
   }
 
+  function persistMetaClickId() {
+    var fbclid = new URLSearchParams(window.location.search).get('fbclid');
+    var hasFbc = /(?:^|;\s*)_fbc=/.test(document.cookie);
+    if (!fbclid || hasFbc) return;
+
+    var expiresInSeconds = 60 * 60 * 24 * 90;
+    var fbc = 'fb.1.' + Date.now() + '.' + fbclid;
+    document.cookie = [
+      '_fbc=' + encodeURIComponent(fbc),
+      'path=/',
+      'domain=.advanx.com.br',
+      'max-age=' + expiresInSeconds,
+      'SameSite=Lax',
+      'Secure'
+    ].join('; ');
+  }
+
+  persistMetaClickId();
   window.dataLayer.push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
   insert('https://www.googletagmanager.com/gtm.js?id=' + encodeURIComponent(GTM_ID));
   installMetaQueue();
