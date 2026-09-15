@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#000000">
+  <meta name="description" content="Estruture sua presença local no Google com Perfil da Empresa, landing page e Google Ads.">
+  <title>Presença local no Google | Advanx</title>
+  <style>
+    :root {
+      --canvas: #000000;
+      --surface: #0a0a0c;
+      --surface-elevated: #101012;
+      --surface-deep: #06060a;
+      --ink: #fcfdff;
+      --body: rgba(252, 253, 255, .78);
+      --mute: #a1a4a5;
+      --hairline: rgba(252, 253, 255, .16);
+      --hairline-strong: rgba(252, 253, 255, .28);
+      --copper: #B56A32;
+      --copper-light: #CC7A3B;
+      --cream: #F6F1E8;
+      --orange-glow: rgba(181, 106, 50, .2);
+      --cream-glow: rgba(246, 241, 232, .08);
+    }
+
+    * { box-sizing: border-box; }
+    html { background: var(--canvas); scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      color: var(--ink);
+      background:
+        radial-gradient(750px 460px at 50% -180px, var(--orange-glow), transparent 68%),
+        var(--canvas);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .container { width: min(100% - 40px, 1120px); margin: 0 auto; }
+
+    .hero {
+      min-height: 100svh;
+      display: grid;
+      align-content: center;
+      padding: 64px 0;
+    }
+    .hero__inner { width: min(100%, 940px); margin: 0 auto; text-align: center; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 {
+      max-width: 900px;
+      margin: 0 auto;
+      font-family: "DM Serif Display", Georgia, serif;
+      font-weight: 400;
+      font-size: clamp(2.7rem, 6.4vw, 5.9rem);
+      line-height: .98;
+      letter-spacing: -.055em;
+    }
+    .hero__sub {
+      width: min(100%, 700px);
+      margin: 28px auto 36px;
+      color: var(--body);
+      font-size: clamp(1.05rem, 2vw, 1.25rem);
+      line-height: 1.5;
+    }
+    .video-shell {
+      overflow: hidden;
+      position: relative;
+      max-width: 860px;
+      margin: 0 auto;
+      border: 1px solid var(--hairline-strong);
+      border-radius: 12px;
+      background: var(--surface-deep);
+      box-shadow: 0 32px 80px rgba(0, 0, 0, .45);
+    }
+    .video-shell::before {
+      display: block;
+      height: 34px;
+      content: "";
+      background:
+        radial-gradient(circle at 18px 17px, #ff5f57 0 4px, transparent 5px),
+        radial-gradient(circle at 34px 17px, #ffbd2e 0 4px, transparent 5px),
+        radial-gradient(circle at 50px 17px, #28c840 0 4px, transparent 5px),
+        #111113;
+      border-bottom: 1px solid var(--hairline);
+    }
+    video { display: block; width: 100%; max-height: min(70svh, 650px); background: #000; }
+
+    #oferta-revelada { display: none; opacity: 0; transform: translateY(18px); }
+    #oferta-revelada.visivel { display: block; animation: revelar .7s ease-out forwards; }
+    @keyframes revelar { to { opacity: 1; transform: translateY(0); } }
+
+    .section { position: relative; padding: 112px 0; border-top: 1px solid var(--hairline); }
+    .section--intro {
+      background: radial-gradient(600px 420px at 5% 20%, var(--cream-glow), transparent 70%);
+    }
+    .eyebrow {
+      margin-bottom: 18px;
+      color: var(--copper-light);
+      font-size: .75rem;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+    h2 { font-family: "DM Serif Display", Georgia, serif; font-size: clamp(2.25rem, 4.5vw, 4rem); font-weight: 400; letter-spacing: -.045em; line-height: 1.04; }
+    h3 { margin-bottom: 12px; font-size: 1.08rem; letter-spacing: -.015em; }
+    .lead { max-width: 770px; color: var(--body); font-size: clamp(1.08rem, 2vw, 1.3rem); line-height: 1.55; }
+    .lead + .lead { margin-top: 18px; }
+
+    .stack { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 42px; }
+    .card {
+      min-height: 172px;
+      padding: 28px;
+      border: 1px solid var(--hairline);
+      border-radius: 12px;
+      background: var(--surface);
+    }
+    .card p { margin-bottom: 0; color: var(--body); line-height: 1.55; }
+    .card__index { display: block; margin-bottom: 26px; color: var(--copper-light); font-size: .73rem; letter-spacing: .08em; }
+    .split { display: grid; grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr); gap: 72px; align-items: start; }
+    .code-window { overflow: hidden; border: 1px solid var(--hairline-strong); border-radius: 12px; background: var(--surface-deep); }
+    .code-window__bar { height: 34px; border-bottom: 1px solid var(--hairline); background: #111113; }
+    .code-window pre { overflow-x: auto; margin: 0; padding: 28px; color: #d8dadd; font-size: .83rem; line-height: 1.8; white-space: pre-wrap; }
+    .code-window .comment { color: var(--mute); }
+    .code-window .key { color: var(--copper-light); }
+    .code-window .value { color: var(--cream); }
+
+    .pricing { background: radial-gradient(720px 460px at 50% 10%, rgba(181, 106, 50, .14), transparent 75%); }
+    .pricing-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 42px; }
+    .price-card { padding: 34px; border: 1px solid var(--hairline); border-radius: 12px; background: var(--surface); }
+    .price-card--featured { border-color: var(--copper); background: var(--surface-elevated); }
+    .price-card h3 { font-size: 1.28rem; }
+    .price-card > p:not(.price):not(.installments) { min-height: 50px; color: var(--body); line-height: 1.5; }
+    .price { margin: 34px 0 5px; font-family: "DM Serif Display", Georgia, serif; font-size: clamp(2.25rem, 5vw, 3.25rem); letter-spacing: -.04em; }
+    .installments { margin-bottom: 28px; color: var(--mute); }
+    .button {
+      display: inline-flex;
+      justify-content: center;
+      width: 100%;
+      min-height: 48px;
+      align-items: center;
+      padding: 12px 18px;
+      border: 1px solid var(--ink);
+      border-radius: 8px;
+      color: #000;
+      background: var(--ink);
+      font-size: .9rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: transform .18s ease, background .18s ease;
+    }
+    .button:hover { background: var(--cream); transform: translateY(-2px); }
+    .note { margin: 20px 0 0; color: var(--mute); font-size: .86rem; }
+    .final { text-align: center; }
+    .final h2, .final .lead { margin-right: auto; margin-left: auto; }
+    .final .button { width: auto; min-width: min(100%, 300px); margin-top: 16px; }
+
+    @media (max-width: 760px) {
+      .container { width: min(100% - 28px, 1120px); }
+      .hero { padding: 34px 0 48px; }
+      .hero__sub { margin: 22px auto 28px; }
+      .section { padding: 72px 0; }
+      .stack, .pricing-grid, .split { grid-template-columns: 1fr; gap: 12px; }
+      .split { gap: 28px; }
+      .card, .price-card { padding: 24px; }
+      .price-card > p:not(.price):not(.installments) { min-height: auto; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      #oferta-revelada.visivel { animation: none; opacity: 1; transform: none; }
+      .button { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero" aria-labelledby="titulo-principal">
+      <div class="container hero__inner">
+        <h1 id="titulo-principal">Quando alguém procurar o que você oferece na sua região, sua empresa precisa estar pronta para ser encontrada e escolhida.</h1>
+        <p class="hero__sub">Assista ao vídeo para entender como estruturamos sua presença no Google e conectamos Perfil da Empresa, landing page e Google Ads em uma operação comercial mais organizada.</p>
+        <div class="video-shell">
+          <video controls autoplay muted playsinline preload="metadata" aria-label="Vídeo sobre a estrutura de presença local no Google">
+            <source src="https://res.cloudinary.com/dmf4bqbdd/video/upload/v1789505917/E888453B-AAA1-458D-9FDC-8C8D688DB2F6_cwucno.mp4" type="video/mp4">
+            Seu navegador não suporta vídeo em HTML5.
+          </video>
+        </div>
+      </div>
+    </section>
+
+    <div id="oferta-revelada" aria-live="polite">
+      <section class="section section--intro">
+        <div class="container">
+          <p class="eyebrow mono">A estrutura</p>
+          <h2>Você não precisa depender apenas de indicação ou postar sem saber o que acontece depois.</h2>
+          <p class="lead">Esta é uma estrutura para colocar sua empresa diante de pessoas que já estão procurando soluções na sua região, com uma apresentação profissional e campanhas pensadas para transformar interesse em conversa.</p>
+          <p class="lead">Não é promessa de posição, volume de contatos ou resultado garantido. É a organização dos ativos certos para sua empresa competir melhor por atenção local e tomar decisões de mídia com mais critério.</p>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <p class="eyebrow mono">Escopo da entrega</p>
+          <h2>O que será estruturado para sua empresa</h2>
+          <div class="stack">
+            <article class="card"><span class="card__index mono">01</span><h3>Perfil da Empresa no Google criado e organizado</h3><p>Criação e estruturação do perfil para sua empresa ter uma base completa e adequada para buscas locais.</p></article>
+            <article class="card"><span class="card__index mono">02</span><h3>Otimização estratégica do perfil</h3><p>Organização das informações que ajudam o cliente a entender quem você é, o que oferece e como entrar em contato.</p></article>
+            <article class="card"><span class="card__index mono">03</span><h3>Categorias, serviços e informações bem apresentados</h3><p>Configuração dos dados essenciais do negócio, incluindo categorias, serviços e informações adequadas à sua atuação.</p></article>
+            <article class="card"><span class="card__index mono">04</span><h3>Base para posicionamento local</h3><p>Uma estrutura pensada para fortalecer sua presença nas buscas de quem procura soluções na sua área de atendimento.</p></article>
+            <article class="card"><span class="card__index mono">05</span><h3>Landing page profissional</h3><p>Uma página focada em explicar sua oferta com clareza e direcionar o visitante para o próximo passo.</p></article>
+            <article class="card"><span class="card__index mono">06</span><h3>Hospedagem da landing page</h3><p>Sua landing page hospedada e acessível ao tráfego das campanhas.</p></article>
+            <article class="card"><span class="card__index mono">07</span><h3>Estruturação estratégica de campanhas no Google Ads</h3><p>Organização de campanhas para conectar a intenção de busca do potencial cliente à sua empresa.</p></article>
+            <article class="card"><span class="card__index mono">08</span><h3>Gestão estratégica de Google Ads</h3><p>Acompanhamento da estrutura das campanhas com foco em ajustes e decisões guiadas pelo que a operação mostra.</p></article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container split">
+          <div>
+            <p class="eyebrow mono">Bônus incluídos</p>
+            <h2>Peças que deixam a operação mais completa.</h2>
+            <p class="lead">Você recebe a estrutura de página e a hospedagem sem precisar coordenar outro fornecedor para colocar a oferta no ar.</p>
+          </div>
+          <div class="code-window" aria-label="Resumo dos bônus incluídos">
+            <div class="code-window__bar"></div>
+            <pre class="mono"><span class="comment">// incluso sem custo adicional</span>
+<span class="key">bonus</span> = {
+  <span class="key">avaliacoes</span>: <span class="value">"Estratégia de avaliações e autoridade"</span>,
+  <span class="key">landingPage</span>: <span class="value">"Landing page profissional"</span>,
+  <span class="key">hospedagem</span>: <span class="value">"Hospedagem da landing page"</span>
+}</pre>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container split">
+          <div>
+            <p class="eyebrow mono">Como funciona</p>
+            <h2>Uma operação com cada peça no lugar certo.</h2>
+          </div>
+          <div>
+            <p class="lead">O Perfil da Empresa ajuda sua empresa a ser compreendida no Google. A landing page organiza a mensagem para quem clica. As campanhas no Google Ads colocam sua oferta diante de buscas relevantes.</p>
+            <p class="lead">A verba de mídia do Google Ads é contratada à parte e fica sob seu controle.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section pricing">
+        <div class="container">
+          <p class="eyebrow mono">Investimento</p>
+          <h2>Escolha o formato para avançar.</h2>
+          <div class="pricing-grid">
+            <article class="price-card">
+              <h3>Estrutura inicial</h3>
+              <p>Para colocar os ativos essenciais da sua presença local e da sua captação no Google em ordem.</p>
+              <p class="price">R$997 à vista</p>
+              <p class="installments">ou 12x de R$97</p>
+              <a class="button" href="https://wa.advanx.com.br/r?text=Vi%20o%20v%C3%ADdeo%20e%20quero%20avan%C3%A7ar" target="_blank" rel="noopener noreferrer">Vi o vídeo e quero avançar</a>
+            </article>
+            <article class="price-card price-card--featured">
+              <h3>Plano trimestral</h3>
+              <p>Para ter a estrutura e a gestão estratégica das campanhas no Google Ads ao longo do período.</p>
+              <p class="price">R$797 por mês</p>
+              <p class="installments">ou 12x de R$199,25</p>
+              <a class="button" href="https://wa.advanx.com.br/r?text=Vi%20o%20v%C3%ADdeo%20e%20quero%20avan%C3%A7ar" target="_blank" rel="noopener noreferrer">Vi o vídeo e quero avançar</a>
+            </article>
+          </div>
+          <p class="note">Verba de mídia do Google Ads não inclusa.</p>
+        </div>
+      </section>
+
+      <section class="section final">
+        <div class="container">
+          <p class="eyebrow mono">Próximo passo</p>
+          <h2>Se você quer parar de improvisar sua presença no Google, o próximo passo é simples.</h2>
+          <p class="lead">Clique no botão, envie a mensagem e converse com a equipe da Advanx para entender qual formato faz mais sentido para o momento da sua empresa.</p>
+          <a class="button" href="https://wa.advanx.com.br/r?text=Vi%20o%20v%C3%ADdeo%20e%20quero%20avan%C3%A7ar" target="_blank" rel="noopener noreferrer">Vi o vídeo e quero avançar</a>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const oferta = document.getElementById('oferta-revelada');
+    window.setTimeout(() => {
+      oferta.classList.add('visivel');
+    }, 120000);
+  </script>
+</body>
+</html>
