@@ -1,4 +1,4 @@
-const SOURCE = 'https://raw.githubusercontent.com/advanx-tecnologia/form/main/google-local/';
+const SOURCE = 'https://raw.githubusercontent.com/advanx-tecnologia/form/c7ad5ebf265dec275b76f87f2ba4ee938b4d46b5/google-local/';
 
 const CONTENT_TYPES = {
   '.html': 'text/html; charset=utf-8',
