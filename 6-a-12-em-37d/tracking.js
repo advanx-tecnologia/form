@@ -95,5 +95,5 @@
   ['pointerdown', 'keydown', 'touchstart'].forEach(function (evento) {
     window.addEventListener(evento, inicializar, { once: true, passive: true });
   });
-  window.setTimeout(inicializar, 4000);
+  window.setTimeout(inicializar, 12000);
 })(window, document);
