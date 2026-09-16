@@ -3,6 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <meta name="theme-color" content="#000000">
   <meta name="description" content="Estruture sua presença local no Google com Perfil da Empresa, landing page e Google Ads.">
   <title>Presença local no Google | Advanx</title>
@@ -156,6 +159,14 @@
     .final h2, .final .lead { margin-right: auto; margin-left: auto; }
     .final .button { width: auto; min-width: min(100%, 300px); margin-top: 16px; }
 
+    .lead-form { display: grid; gap: 10px; margin-top: 22px; text-align: left; }
+    .lead-form label { color: var(--body); font-size: .82rem; font-weight: 600; }
+    .lead-form input { width: 100%; height: 42px; margin-top: 6px; padding: 10px 12px; border: 1px solid var(--hairline-strong); border-radius: 8px; outline: 0; color: var(--ink); background: var(--surface-deep); font: inherit; -webkit-user-select: text; user-select: text; }
+    .lead-form input:focus { border-color: var(--ink); box-shadow: 0 0 0 3px rgba(252,253,255,.10); }
+    .lead-form .button { border: 0; cursor: pointer; }
+    .lead-form__status { min-height: 1.25em; margin: 0; color: var(--mute); font-size: .78rem; }
+    @media (min-width: 761px) { body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; } h1, h2, .price { font-family: "DM Serif Display", Georgia, serif; } }
+
     @media (max-width: 760px) {
       .container { width: min(100% - 28px, 1120px); }
       .hero { padding: 34px 0 48px; }
@@ -258,14 +269,24 @@
               <p>Para colocar os ativos essenciais da sua presença local e da sua captação no Google em ordem.</p>
               <p class="price">R$997 à vista</p>
               <p class="installments">ou 12x de R$97</p>
-              <a class="button" href="https://wa.advanx.com.br/r?text=Vi%20o%20v%C3%ADdeo%20e%20quero%20avan%C3%A7ar" target="_blank" rel="noopener noreferrer">Vi o vídeo e quero avançar</a>
+              <form class="lead-form" data-lead-form>
+                <label>Seu nome<input name="nome" type="text" autocomplete="name" required maxlength="120"></label>
+                <label>Seu WhatsApp<input name="telefone" type="tel" inputmode="tel" autocomplete="tel" required maxlength="20"></label>
+                <button class="button" type="submit">Avançar para o WhatsApp</button>
+                <p class="lead-form__status" aria-live="polite"></p>
+              </form>
             </article>
             <article class="price-card price-card--featured">
               <h3>Plano trimestral</h3>
               <p>Para ter a estrutura e a gestão estratégica das campanhas no Google Ads ao longo do período.</p>
               <p class="price">R$797 por mês</p>
               <p class="installments">ou 12x de R$199,25</p>
-              <a class="button" href="https://wa.advanx.com.br/r?text=Vi%20o%20v%C3%ADdeo%20e%20quero%20avan%C3%A7ar" target="_blank" rel="noopener noreferrer">Vi o vídeo e quero avançar</a>
+              <form class="lead-form" data-lead-form>
+                <label>Seu nome<input name="nome" type="text" autocomplete="name" required maxlength="120"></label>
+                <label>Seu WhatsApp<input name="telefone" type="tel" inputmode="tel" autocomplete="tel" required maxlength="20"></label>
+                <button class="button" type="submit">Avançar para o WhatsApp</button>
+                <p class="lead-form__status" aria-live="polite"></p>
+              </form>
             </article>
           </div>
           <p class="note">Verba de mídia do Google Ads não inclusa.</p>
@@ -277,7 +298,12 @@
           <p class="eyebrow mono">Próximo passo</p>
           <h2>Se você quer parar de improvisar sua presença no Google, o próximo passo é simples.</h2>
           <p class="lead">Clique no botão, envie a mensagem e converse com a equipe da Advanx para entender qual formato faz mais sentido para o momento da sua empresa.</p>
-          <a class="button" href="https://wa.advanx.com.br/r?text=Vi%20o%20v%C3%ADdeo%20e%20quero%20avan%C3%A7ar" target="_blank" rel="noopener noreferrer">Vi o vídeo e quero avançar</a>
+          <form class="lead-form" data-lead-form>
+                <label>Seu nome<input name="nome" type="text" autocomplete="name" required maxlength="120"></label>
+                <label>Seu WhatsApp<input name="telefone" type="tel" inputmode="tel" autocomplete="tel" required maxlength="20"></label>
+                <button class="button" type="submit">Avançar para o WhatsApp</button>
+                <p class="lead-form__status" aria-live="polite"></p>
+              </form>
         </div>
       </section>
     </div>
@@ -285,9 +311,33 @@
 
   <script>
     const oferta = document.getElementById('oferta-revelada');
+    const rotaWhatsApp = 'https://wa.advanx.com.br/r';
     window.setTimeout(() => {
       oferta.classList.add('visivel');
     }, 120000);
+
+    document.querySelectorAll('[data-lead-form]').forEach((formulario) => {
+      formulario.addEventListener('submit', (evento) => {
+        evento.preventDefault();
+        if (!formulario.reportValidity()) return;
+        const nome = formulario.elements.nome.value.trim();
+        const telefone = formulario.elements.telefone.value.trim();
+        const botao = formulario.querySelector('button[type="submit"]');
+        const status = formulario.querySelector('.lead-form__status');
+        botao.disabled = true;
+        status.textContent = 'Abrindo o WhatsApp...';
+        const texto = `Vi o vídeo e quero avançar. Nome: ${nome}. Telefone: ${telefone}.`;
+        window.location.assign(`${rotaWhatsApp}?${new URLSearchParams({ text: texto }).toString()}`);
+      });
+    });
+
+    document.addEventListener('contextmenu', (evento) => evento.preventDefault());
+    document.addEventListener('copy', (evento) => evento.preventDefault());
+    document.addEventListener('cut', (evento) => evento.preventDefault());
+    document.addEventListener('dragstart', (evento) => evento.preventDefault());
+    document.addEventListener('keydown', (evento) => {
+      if ((evento.ctrlKey || evento.metaKey) && ['c', 'x', 'u', 's'].includes(evento.key.toLowerCase())) evento.preventDefault();
+    });
   </script>
 </body>
 </html>
