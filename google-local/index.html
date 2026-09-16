@@ -2,7 +2,9 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="https://res.cloudinary.com/dmf4bqbdd/image/upload/v1784400742/Logo_Advanx_IA_Transparante_v3_kgirrz.png">
+  <link rel="apple-touch-icon" href="https://res.cloudinary.com/dmf4bqbdd/image/upload/v1784400742/Logo_Advanx_IA_Transparante_v3_kgirrz.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -130,7 +132,8 @@
     .code-window .value { color: var(--cream); }
 
     .pricing { background: radial-gradient(720px 460px at 50% 10%, rgba(181, 106, 50, .14), transparent 75%); }
-    .pricing-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 42px; }
+    .pricing-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 42px; }
+    @media (max-width: 1040px) { .pricing-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     .price-card { padding: 34px; border: 1px solid var(--hairline); border-radius: 12px; background: var(--surface); }
     .price-card--featured { border-color: var(--copper); background: var(--surface-elevated); }
     .price-card h3 { font-size: 1.28rem; }
@@ -279,8 +282,21 @@
             <article class="price-card price-card--featured">
               <h3>Plano trimestral</h3>
               <p>Para ter a estrutura e a gestão estratégica das campanhas no Google Ads ao longo do período.</p>
-              <p class="price">R$797 por mês</p>
-              <p class="installments">ou 12x de R$199,25</p>
+              <p class="price">R$697 por mês</p>
+              <p class="installments">ou 12x de R$174,25</p>
+              <form class="lead-form" data-lead-form>
+                <label>Seu nome<input name="nome" type="text" autocomplete="name" required maxlength="120"></label>
+                <label>Seu WhatsApp<input name="telefone" type="tel" inputmode="tel" autocomplete="tel" required maxlength="20"></label>
+                <button class="button" type="submit">Avançar para o WhatsApp</button>
+                <p class="lead-form__status" aria-live="polite"></p>
+              </form>
+            </article>
+            <article class="price-card">
+              <h3>Otimização do Google Meu Negócio</h3>
+              <p>Para otimizar o Perfil da Empresa no Google, com categorias, serviços e informações organizadas para sua presença local.</p>
+              <p class="price">R$497 à vista</p>
+              <p class="installments">ou 12x de R$49,70</p>
+              <p class="note">Valor único. Sem landing page, hospedagem ou Google Ads.</p>
               <form class="lead-form" data-lead-form>
                 <label>Seu nome<input name="nome" type="text" autocomplete="name" required maxlength="120"></label>
                 <label>Seu WhatsApp<input name="telefone" type="tel" inputmode="tel" autocomplete="tel" required maxlength="20"></label>
