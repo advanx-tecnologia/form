@@ -87,7 +87,7 @@
         #111113;
       border-bottom: 1px solid var(--hairline);
     }
-    video { display: block; width: 100%; max-height: min(70svh, 650px); background: #000; }
+    video { display: block; width: 100%; aspect-ratio: 16 / 9; max-height: min(70svh, 650px); background: #000; object-fit: contain; }
 
     #oferta-revelada { display: none; opacity: 0; transform: translateY(18px); }
     #oferta-revelada.visivel { display: block; animation: revelar .7s ease-out forwards; }
