@@ -15,7 +15,7 @@
       /* primitivos DS */
       --blue-300:#7DD3FC;--blue-400:#38BDF8;--blue-500:#0EA5E9;--blue-600:#0284C7;
       --ink-950:#050B14;--ink-900:#091321;--ink-850:#0D1A2B;--ink-800:#132238;
-      --slate-50:#F7FAFC;--slate-300:#C6D1DE;--slate-400:#96A8BB;--slate-500:#6B7F94;
+      --white-puro:#FFFFFF;--slate-100:#EEF3F8;--slate-50:#F7FAFC;--slate-300:#C6D1DE;--slate-400:#96A8BB;--slate-500:#6B7F94;
       --line:#1B3048;--green-400:#54D39D;--red-400:#FB7C83;
       /* papéis semânticos do DS */
       --canvas:var(--ink-950);
@@ -57,7 +57,7 @@
     main{width:min(960px,calc(100% - 40px));min-height:0;margin:0 auto;padding:24px 0;display:grid;align-items:center;overflow-x:hidden;overflow-y:auto;overscroll-behavior-y:none}
     .stage{display:none;width:100%}.stage.active{display:block}
     .hero{display:block;width:min(700px,100%);margin:0 auto;padding:16px 0}
-    .intro-brand{display:flex;align-items:center;margin-bottom:18px}.intro-brand img{display:block;width:48px;height:48px;object-fit:cover;border-radius:6px}
+    .intro-brand{display:flex;align-items:center;margin-bottom:18px}.intro-brand img{display:block;width:48px;height:48px;object-fit:contain}
     .eyebrow{display:flex;align-items:center;gap:10px;margin:0 0 20px;color:var(--copper-700);font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.eyebrow:before{content:"";width:32px;height:2px;background:var(--copper-700)}
     h1,h2,h3,p{margin-top:0}h1,h2{letter-spacing:-.045em;text-wrap:balance}
     h1{font-size:clamp(30px,3.6vw,36px);line-height:1.12;margin-bottom:14px;max-width:620px}
@@ -98,8 +98,8 @@
     /* Ajustes de contraste exigidos pelo tema escuro do Design System 1.0 */
     .field input::placeholder{color:var(--slate-500)}
     .email-suggestions{box-shadow:0 12px 28px rgba(0,0,0,.45)}
-    .btn-primary{background:var(--action);color:var(--action-ink)}
-    .btn-primary:hover{background:var(--blue-500)}
+    .btn-primary{background:var(--white-puro);color:var(--ink-950)}
+    .btn-primary:hover{background:var(--slate-100)}
     .btn-secondary{background:var(--surface-raised);color:var(--text);border:1px solid var(--line-color)}
     .btn-secondary:hover{background:var(--surface-strong,var(--ink-800))}
     .slot.selected{background:var(--action);border-color:var(--action);color:var(--action-ink)}
@@ -125,7 +125,7 @@
     <main id="main">
       <section class="stage active" data-step="0" aria-labelledby="hero-title">
         <div class="hero">
-          <div class="intro-brand"><img src="logo-advanx-96.webp" width="48" height="48" alt="Advanx" fetchpriority="high" decoding="async"></div>
+          <div class="intro-brand"><img src="advanx-logo-light.png" width="48" height="48" alt="Advanx IA" fetchpriority="high" decoding="async"></div>
           <div class="eyebrow">Aplicação para escritórios</div>
           <h1 id="hero-title">Seu escritorio pode fechar de 6 a 12 novos contratos em até 37d, não fechou não paga!</h1>
           <p class="lead">Com a implementação feita conseguimos entregar a garantia de resultado, 6 a 12 contratos fechados em até 37d, não fechou mensalidade é zerada, aqui nós sangramos com você se não trouxer resultado!.</p>
