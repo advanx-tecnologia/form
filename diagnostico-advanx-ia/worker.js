@@ -43,8 +43,21 @@ async function lead(req,env){const b=await ler(req),a=b.respostas||{},id=texto(b
   let rows;if(existing){rows=await supabase(env,'dados_cliente?id=eq.'+existing.id,'PATCH',data)}else{data.created_at=new Date().toISOString();data.ia_active=false;data.followup_active=false;rows=await supabase(env,'dados_cliente','POST',data)}
   if(!rows?.[0]?.id)throw new Error('lead_sem_id');
   const leadId=rows[0].id;
-  // Webhook do DeskComm usa a chave de submissão para deduplicação.
-  const crmBody={nome,telefone:t,email,instagram:ig||'',external_id:id,submission_id:id,origem:'Diagnóstico Advanx IA',lead_id_supabase:String(leadId),respostas};
+  // O webhook mapeia apenas campos escalares de primeiro nível. external_id deduplica o envio.
+  const rotulos={
+    tempo:'Falta de tempo',tecnologia:'Falta de aptidão com tecnologia',recursos:'Falta de recursos financeiros',
+    etica:'Dificuldade com as normas éticas',agendamento:'Falta de ferramenta de agendamento',
+    ate5:'Até 5 contratos', '6a20':'De 6 a 20 contratos','21a50':'De 21 a 50 contratos',
+    '51a100':'De 51 a 100 contratos','100mais':'Acima de 100 contratos',
+    ate500:'Até R$ 500',ate1000:'Até R$ 1.000',ate5000:'Até R$ 5.000',
+    '5000mais':'Acima de R$ 5.000',sem:'Não tenho condições de investir agora'
+  };
+  const crmBody={nome,telefone:t,email,external_id:id,origem:'Diagnóstico Advanx IA',lead_id_supabase:String(leadId)};
+  if(ig)crmBody.ig='@'+ig;
+  if(respostas.dificuldades.length)crmBody.trava=respostas.dificuldades.map(x=>rotulos[x]||x).join('; ');
+  if(respostas.nota!==null)crmBody.nota=String(respostas.nota);
+  if(respostas.meta)crmBody.contratos=rotulos[respostas.meta]||respostas.meta;
+  if(respostas.investimento)crmBody.investimento=rotulos[respostas.investimento]||respostas.investimento;
   const crm=await requisitar(env.DESKCOMM_WEBHOOK_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(crmBody)},15000);
   if(!crm.ok)return json({ok:false,lead_id:leadId,crm_ok:false,erro:'crm_indisponivel'},502);
   // Confirmar persistência exata no Supabase; webhook DeskComm só confirma aceite HTTP.
