@@ -1,0 +1,10 @@
+{
+  "$schema": "https://unpkg.com/wrangler@4/config-schema.json",
+  "name": "advanx-form-diagnostico-ia",
+  "main": "worker.js",
+  "compatibility_date": "2026-10-02",
+  "workers_dev": false,
+  "routes": [{"pattern": "form.advanx.com.br/diagnostico-advanx-ia/*", "zone_name": "advanx.com.br"}],
+  "vars": {"SUPABASE_URL": "https://lhbwfbquxkutcyqazpnw.supabase.co", "SOURCE_SHA": "PREENCHER_COM_SHA_DO_COMMIT_PUBLICADO"},
+  "ratelimits": [{"name": "RATE_LIMITER", "namespace_id": "2747", "simple": {"limit": 5, "period": 60}}]
+}
