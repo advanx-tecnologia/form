@@ -54,6 +54,9 @@
     } else if (nome === 'form_start') {
       window.fbq('trackCustom', 'FormStart', dados);
       window.gtag('event', 'form_start', Object.assign({ send_to: GA4_ID }, dados));
+    } else if (nome === 'cadastro_recebido') {
+      window.fbq('track', 'CompleteRegistration', dados);
+      window.gtag('event', 'cadastro_recebido', Object.assign({ send_to: GA4_ID }, dados));
     } else if (nome === 'generate_lead') {
       window.fbq('track', 'Lead', dados);
       window.gtag('event', 'generate_lead', Object.assign({ send_to: GA4_ID }, dados));
