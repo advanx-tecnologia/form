@@ -33,3 +33,9 @@ textarea.input{min-height:112px;resize:vertical}
 /* avatar no primeiro balão: o histórico fica num contêiner, então a regra irmã do DS não alcança o primeiro filho */
 .historico>.balao--bot:first-child::before{content:"";position:absolute;left:-44px;top:0;width:32px;height:32px;border-radius:var(--r-ctl);border:1px solid var(--ctl);background:var(--surface)}
 .historico>.balao--bot:first-child::after{content:"";position:absolute;left:-44px;top:0;width:32px;height:32px;background:var(--fg);-webkit-mask:url(assets/logo-original.png) center/36px no-repeat;mask:url(assets/logo-original.png) center/36px no-repeat}
+
+/* Ono 18/11: dados da empresa, discretos, abaixo da conversa */
+.rodape-form{border-top:1px solid var(--line);padding:var(--s6) 0 var(--s8)}
+.rodape-form .rodape__dados{display:grid;gap:var(--s1,4px);font-size:12px;line-height:1.55;color:var(--fg-2);max-width:640px;margin:0 auto}
+.rodape-form p,.rodape-form address{margin:0;font-style:normal;overflow-wrap:anywhere}
+.rodape-form a{color:inherit;text-decoration:underline;text-underline-offset:2px}
