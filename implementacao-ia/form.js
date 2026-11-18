@@ -363,4 +363,5 @@ async function boot() {
   }
 }
 
+for (const y of document.querySelectorAll('.rodape-form .ano')) y.textContent = String(new Date().getFullYear());
 boot();
