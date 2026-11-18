@@ -1,0 +1,142 @@
+/* Advanx IA | design system v2 | componentes | 18/11/2026. Depende de tokens.css */
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:80px}
+body{margin:0;background:var(--bg);color:var(--fg);font:400 var(--t-body)/1.6 var(--f-sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+img,svg{display:block;max-width:100%}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:3px;border-radius:2px}
+.wrap{width:100%;max-width:calc(var(--content) + var(--gutter)*2);margin:0 auto;padding:0 var(--gutter)}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---- tipografia ---- */
+.display,.h2,.h3{font-family:var(--f-display);font-weight:400;margin:0;color:var(--fg);text-wrap:balance}
+.display{font-size:var(--t-display);line-height:1.0;letter-spacing:-.018em}
+.h2{font-size:var(--t-h2);line-height:1.04;letter-spacing:-.012em}
+.h3{font-size:var(--t-h3);line-height:1.1;letter-spacing:-.006em}
+.lead{font-size:var(--t-lead);line-height:1.55;color:var(--fg-2);max-width:var(--read);margin:0;text-wrap:pretty}
+.prose{max-width:var(--read);color:var(--fg-2);margin:0;text-wrap:pretty}
+.small{font-size:var(--t-small);color:var(--fg-2)}
+.tag{display:inline-flex;align-items:center;gap:6px;font:500 var(--t-tag)/1 var(--f-mono);text-transform:uppercase;letter-spacing:.07em;color:var(--fg);padding:6px 8px;border:1px solid var(--ctl);border-radius:var(--r-tag);white-space:nowrap}
+.tag--plain{border:0;padding:0;color:var(--fg-2)}
+/* ouro como marca-texto: sempre com tinta por cima, no máximo 1 por tela */
+.mark{background:linear-gradient(transparent 60%,var(--gold) 60% 94%,transparent 94%);color:var(--ink);padding:0 .06em;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.noite .mark{color:var(--ink)}
+
+/* ---- logo: PNG como máscara, pinta com a cor do tema ---- */
+.logo{display:inline-flex;align-items:center;gap:12px;text-decoration:none;font:600 20px/1 var(--f-sans);letter-spacing:-.03em}
+.logo i{display:block;width:22px;height:30px;background:var(--fg);-webkit-mask:url(assets/logo-original.png) center/44px no-repeat;mask:url(assets/logo-original.png) center/44px no-repeat}
+.noite .logo i{background:var(--gold)}
+
+/* ---- botões ---- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:var(--hit);padding:12px 22px;border-radius:var(--r-ctl);border:1px solid var(--btn-edge);font:600 16px/1.2 var(--f-sans);letter-spacing:-.01em;text-decoration:none;cursor:pointer;transition:transform var(--d-fast) var(--ease),box-shadow var(--d-fast) var(--ease),background var(--d-fast) var(--ease);text-align:center}
+.btn svg{width:18px;height:18px;flex:none}
+.btn--primary{background:var(--gold);color:var(--ink);box-shadow:var(--btn-shadow)}
+.btn--primary:hover{transform:translateY(1px);box-shadow:0 1px 0 var(--ink)}
+.noite .btn--primary:hover{box-shadow:0 1px 0 #A8892A}
+.btn--primary:active{transform:translateY(2px);box-shadow:none}
+.btn--secondary{background:transparent;color:var(--fg);border-color:var(--ctl)}
+.btn--secondary:hover{border-color:var(--fg);background:var(--bg-2)}
+.btn--ghost{background:none;border-color:transparent;color:var(--link);padding-inline:6px;text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1px}
+.btn--ghost:hover{text-decoration-thickness:2px}
+.btn[disabled],.btn[aria-disabled=true]{background:var(--bg-2);color:var(--fg-2);border-color:var(--line);box-shadow:none;cursor:not-allowed;transform:none}
+.btn--block{width:100%}
+
+/* ---- cabeçalho ---- */
+.topo{border-bottom:1px solid var(--line);background:var(--bg)}
+.topo .wrap{display:flex;align-items:center;justify-content:space-between;height:68px}
+
+/* ---- seção: rótulo à esquerda, conteúdo à direita (padrão do ouro) ---- */
+.secao{padding:var(--section) 0}
+.secao--linha{border-top:1px solid var(--line)}
+.secao__grade{display:grid;gap:var(--s8);grid-template-columns:1fr}
+@media (min-width:900px){.secao__grade{grid-template-columns:minmax(0,4fr) minmax(0,8fr);gap:var(--s16)}}
+.secao__rotulo{display:flex;flex-direction:column;gap:var(--s4);align-items:flex-start}
+
+/* ---- ficha: o cartão da marca (numerada, divisória picotada) ---- */
+.ficha{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-card)}
+.picote{border:0;border-top:1px dashed var(--ctl);margin:0}
+
+/* ---- time (vitrine): linha expansível, sem caixa por item ---- */
+.times{border-top:1px solid var(--fg);margin:0;padding:0;list-style:none}
+.time{border-bottom:1px solid var(--line)}
+.time summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:auto 1fr auto;column-gap:var(--s4);row-gap:var(--s2);align-items:start;padding:var(--s6) 0;min-height:var(--hit)}
+.time summary::-webkit-details-marker{display:none}
+.time__n{font:500 var(--t-tag)/1 var(--f-mono);letter-spacing:.07em;color:var(--fg-2);padding-top:12px}
+.time__nome{font-family:var(--f-display);font-weight:400;font-size:var(--t-h3);line-height:1.1;margin:0;color:var(--fg)}
+.time__desc{grid-column:2/3;margin:0;color:var(--fg-2);max-width:var(--read)}
+.time__res{grid-column:2/3;display:flex;gap:var(--s2);flex-wrap:wrap;margin-top:var(--s1)}
+.time__mais{grid-column:3;grid-row:1;width:var(--hit);height:var(--hit);margin:-6px 0 0 0;display:grid;place-items:center;border:1px solid var(--ctl);border-radius:var(--r-ctl);transition:background var(--d-fast) var(--ease)}
+.time__mais svg{width:18px;height:18px;stroke:var(--fg);fill:none;stroke-width:1.5}
+.time__mais .menos{display:none}
+.time[open] .time__mais .mais{display:none}.time[open] .time__mais .menos{display:block}
+.time summary:hover .time__mais{background:var(--bg-2)}
+.time summary:focus-visible{outline-offset:-3px}
+.agentes{list-style:none;margin:0;padding:0 0 var(--s8) calc(var(--s4) + 28px);display:grid;gap:0}
+.agentes li{display:grid;grid-template-columns:22px 1fr;gap:var(--s3);padding:var(--s3) 0;border-top:1px dashed var(--line)}
+.agentes li:first-child{border-top:0}
+.agentes svg{width:20px;height:20px;margin-top:3px;stroke:var(--link);fill:none;stroke-width:1.75}
+.agentes strong{font-weight:600;color:var(--fg)}
+.agentes span{color:var(--fg-2)}
+@media (min-width:900px){.agentes{grid-template-columns:1fr 1fr;column-gap:var(--s10)}.agentes li:nth-child(2){border-top:0}}
+@media (max-width:520px){.time summary{column-gap:var(--s3)}.time__mais{width:44px;height:44px}.time__desc,.time__res{grid-column:1/-1}.agentes{padding-left:0}.time__n{padding-top:10px}}
+
+/* ---- campo e opções ---- */
+.campo{display:grid;gap:var(--s2)}
+.campo label{font-weight:600;font-size:15px}
+.campo__dica{font-size:var(--t-small);color:var(--fg-2)}
+.input{min-height:var(--hit);width:100%;padding:12px 14px;font:400 17px/1.3 var(--f-sans);color:var(--fg);background:var(--surface);border:1px solid var(--ctl);border-radius:var(--r-ctl);transition:border-color var(--d-fast) var(--ease),box-shadow var(--d-fast) var(--ease)}
+.input::placeholder{color:var(--fg-2);opacity:.85}
+.input:hover{border-color:var(--fg)}
+.input:focus{outline:0;border-color:var(--fg);box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--focus)}
+.input[aria-invalid=true]{border:2px solid var(--err);padding:11px 13px}
+.campo__erro{display:flex;gap:8px;align-items:flex-start;color:var(--err);font-size:var(--t-small);font-weight:500}
+.noite .campo__erro{color:#F1B0A0}.noite .input[aria-invalid=true]{border-color:#F1B0A0}
+.campo__erro svg{width:16px;height:16px;margin-top:2px;flex:none;stroke:currentColor;fill:none;stroke-width:1.75}
+.telefone{display:grid;grid-template-columns:auto 1fr;gap:var(--s2)}
+.telefone .ddi{display:flex;align-items:center;padding:0 14px;min-height:var(--hit);border:1px solid var(--ctl);border-radius:var(--r-ctl);font-family:var(--f-mono);font-size:15px;background:var(--bg-2)}
+
+.opcoes{display:grid;gap:var(--s2);margin:0;padding:0;border:0}
+.opcao{position:relative;display:grid;grid-template-columns:22px 1fr;gap:var(--s3);align-items:start;padding:14px 16px;min-height:var(--hit);background:var(--surface);border:1px solid var(--ctl);border-radius:var(--r-ctl);cursor:pointer;transition:border-color var(--d-fast) var(--ease),background var(--d-fast) var(--ease)}
+.opcao:hover{border-color:var(--fg)}
+.opcao input{position:absolute;opacity:0;inset:0;cursor:pointer;margin:0}
+.opcao__caixa{width:22px;height:22px;margin-top:1px;border:1.5px solid var(--fg);border-radius:var(--r-tag);display:grid;place-items:center;background:var(--bg)}
+.opcao__caixa svg{width:14px;height:14px;stroke:var(--ink);fill:none;stroke-width:2.5;opacity:0}
+.opcao input:checked ~ .opcao__caixa{background:var(--gold);border-color:var(--gold)}
+.opcao input:checked ~ .opcao__caixa svg{opacity:1}
+.opcao:has(input:checked){border-color:var(--fg);box-shadow:inset 0 0 0 1px var(--fg)}
+.opcao:has(input:focus-visible){outline:3px solid var(--focus);outline-offset:3px}
+.opcao b{display:block;font-weight:600;line-height:1.35}
+.opcao small{display:block;color:var(--fg-2);font-size:var(--t-small);line-height:1.4;margin-top:2px}
+
+/* ---- conversa: um balão por vez ---- */
+.conversa{display:grid;gap:var(--s4);padding:var(--s6) var(--s5);max-width:640px;margin:0 auto}
+.conversa__barra{height:3px;background:var(--line);border-radius:2px;overflow:hidden}
+.conversa__barra i{display:block;height:100%;background:var(--gold)}
+.balao{max-width:88%;padding:14px 16px;border-radius:var(--r-big);font-size:17px;line-height:1.5;border:1px solid var(--line);background:var(--surface);color:var(--fg)}
+.balao--bot{border-bottom-left-radius:var(--r-tag);justify-self:start}
+.balao--eu{border-bottom-right-radius:var(--r-tag);justify-self:end;background:var(--bubble-user-bg);color:var(--bubble-user-fg);border-color:var(--bubble-user-bg)}
+.balao--digitando{display:flex;gap:6px;padding:18px 16px}
+.balao--digitando i{width:7px;height:7px;border-radius:50%;background:var(--fg-2)}
+.balao--digitando i:nth-child(2){opacity:.65}.balao--digitando i:nth-child(3){opacity:.35}
+.resposta{display:grid;gap:var(--s3);padding:var(--s4);border:1px solid var(--line);border-radius:var(--r-card);background:var(--bg)}
+
+/* ---- barra de ação fixa no celular ---- */
+.barra-acao{display:none}
+@media (max-width:720px){.barra-acao{display:block;position:sticky;transition:transform var(--d-ui) var(--ease);bottom:0;z-index:10;background:var(--bg);border-top:1px solid var(--fg);padding:12px var(--gutter) calc(12px + env(safe-area-inset-bottom))}}
+
+/* ---- rodapé de amostra / anotações (não fazem parte do sistema) ---- */
+.nota{font:500 11px/1.4 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:#5C574B;background:#E4DFD0;border-bottom:1px dashed #85806F;padding:8px var(--gutter);text-align:left}
+
+/* ---- símbolo "A" como desenho de linha (marca d'água de topo) ---- */
+.marca-agua{position:absolute;pointer-events:none;background:var(--line);-webkit-mask:url(assets/logo-original.png) center/contain no-repeat;mask:url(assets/logo-original.png) center/contain no-repeat;aspect-ratio:1;opacity:.9}
+.mark--junto{white-space:nowrap}
+@media (min-width:900px){.secao__rotulo--fixo{position:sticky;top:32px;align-self:start}}
+/* a barra só aparece depois que o botão do topo sai da tela (JS de 6 linhas, ver amostra) */
+@media (max-width:720px){.barra-acao.oculta{transform:translateY(110%);visibility:hidden}}
+
+/* ---- conversa: avatar da marca (quadrado de contorno com o "A") no começo de cada fala do bot; ouro fica só para seleção e ação ---- */
+.balao--bot{margin-left:44px;position:relative}
+.conversa__barra + .balao--bot::before,.balao--eu + .balao--bot::before{content:"";position:absolute;left:-44px;top:0;width:32px;height:32px;border-radius:var(--r-ctl);border:1px solid var(--ctl);background:var(--surface)}
+.conversa__barra + .balao--bot::after,.balao--eu + .balao--bot::after{content:"";position:absolute;left:-44px;top:0;width:32px;height:32px;background:var(--fg);-webkit-mask:url(assets/logo-original.png) center/36px no-repeat;mask:url(assets/logo-original.png) center/36px no-repeat}
+/* marca-texto na faixa noite: fundo cheio de ouro com tinta por cima (o realce de 1/3 só funciona sobre texto escuro) */
+.noite .mark{background:var(--gold);color:var(--ink);padding:.02em .22em;border-radius:var(--r-tag)}

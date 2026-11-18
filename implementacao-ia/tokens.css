@@ -1,0 +1,62 @@
+/* Advanx IA | design system v2 "Papel e tinta" | tokens | 18/11/2026
+   Fonte de verdade dos valores: tokens.json. Proposta da Nala, aguarda ok do Rafael. */
+
+@font-face{font-family:"Instrument Serif";src:url("assets/fonts/InstrumentSerif-Regular.latin.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Geist";src:url("assets/fonts/Geist.latin.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap}
+@font-face{font-family:"Geist Mono";src:url("assets/fonts/GeistMono.latin.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap}
+
+:root{
+  /* primitivas: papel e tinta (neutros quentes) */
+  --paper:#F5F2EA; --paper-2:#ECE8DD; --card:#FBFAF6;
+  --ink:#17150F; --ink-2:#5C574B; --rule:#D9D4C6; --rule-strong:#85806F;
+  /* ouro: cor da marca, SEM mudança (#F7CE4A). ouro-texto é só para texto/ícone sobre claro */
+  --gold:#F7CE4A; --gold-text:#6E5200;
+  /* noite (faixas escuras) */
+  --night:#14120D; --night-2:#1E1B14; --night-ink:#F5F2EA; --night-ink-2:#B5AE9C; --night-rule:#3A3629; --night-rule-strong:#8C8570;
+  /* estados */
+  --ok:#2D6A3A; --err:#A3361F;
+
+  /* famílias: 2 (Instrument Serif; Geist, que inclui Geist Mono) */
+  --f-display:"Instrument Serif","Times New Roman",serif;
+  --f-sans:"Geist",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  --f-mono:"Geist Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+
+  /* escala (celular → desktop) */
+  --t-display:clamp(44px,8.4vw,84px);
+  --t-h2:clamp(34px,5vw,56px);
+  --t-h3:clamp(26px,3vw,32px);
+  --t-lead:clamp(18px,1.6vw,21px);
+  --t-body:17px; --t-small:14px; --t-tag:12px;
+
+  /* espaço: base 4 */
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:20px; --s6:24px; --s8:32px; --s10:40px; --s12:48px; --s16:64px; --s20:80px; --s28:112px;
+  --section:clamp(64px,9vw,112px);
+  --gutter:20px; --content:1120px; --read:62ch;
+
+  /* formas: cada coisa com o seu raio */
+  --r-tag:4px; --r-ctl:8px; --r-card:12px; --r-big:16px;
+  --hit:48px;
+
+  /* movimento */
+  --d-fast:140ms; --d-ui:220ms; --ease:cubic-bezier(.2,0,0,1);
+
+  /* tema CLARO (padrão) */
+  --bg:var(--paper); --bg-2:var(--paper-2); --surface:var(--card);
+  --fg:var(--ink); --fg-2:var(--ink-2); --line:var(--rule); --ctl:var(--rule-strong);
+  --link:var(--gold-text); --focus:var(--ink);
+  --btn-edge:var(--ink); --btn-shadow:0 2px 0 var(--ink);
+  --bubble-user-bg:var(--ink); --bubble-user-fg:var(--paper);
+}
+
+/* tema NOITE: faixas escuras (garantia, fecho, conversa). Mesmos componentes, outro conjunto de variáveis */
+.noite{
+  --bg:var(--night); --bg-2:var(--night-2); --surface:var(--night-2);
+  --fg:var(--night-ink); --fg-2:var(--night-ink-2); --line:var(--night-rule); --ctl:var(--night-rule-strong);
+  --link:var(--gold); --focus:var(--gold);
+  --btn-edge:var(--gold); --btn-shadow:0 2px 0 #A8892A;
+  --bubble-user-bg:var(--paper); --bubble-user-fg:var(--ink);
+  background:var(--bg); color:var(--fg);
+}
+
+@media (min-width:721px){:root{--gutter:40px}}
+@media (prefers-reduced-motion:reduce){:root{--d-fast:0ms;--d-ui:0ms}}

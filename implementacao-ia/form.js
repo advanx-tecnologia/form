@@ -1,14 +1,26 @@
-// Conversation form: one question at a time. The server validates and saves every answer;
-// the browser holds no credentials and pushes only events without personal data to GTM.
-import {questions, opening, next, validate} from './flow.js';
+// Conversation form (DS v2 "Papel e tinta", night theme): one question at a time. The server validates and
+// saves every answer; the browser holds no credentials and pushes only events without personal data to GTM.
+import {questions, opening, next, path, validate} from './flow.js';
 
 const API = document.querySelector('meta[name="ia-api"]')?.content || '/api/implementacao-ia/';
 const WHATSAPP = 'https://wa.advanx.com.br/r';
 const box = document.querySelector('#conversation');
 const history = document.querySelector('#history');
 const status = document.querySelector('#status');
+const bar = document.querySelector('#barra');
 const ATTR = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'fbclid', 'gclid', 'gbraid', 'wbraid'];
 const attribution = Object.fromEntries([...new URLSearchParams(location.search)].filter(([k]) => ATTR.includes(k)).map(([k, v]) => [k, v.slice(0, 250)]));
+
+// Microcopy v2 (Sarabi, 18/11).
+const MSG = {
+  empty: 'Falta só esse campo para seguir.',
+  teams: 'Marque pelo menos uma opção para seguir.',
+  phone: 'Esse número parece incompleto. Confira o DDD e os 9 dígitos.',
+  email: 'Esse e-mail parece ter algum erro. Confira se tem o @ e o final, como .com.',
+  instagram: 'Confira o @. Ele não pode ter espaço.',
+  send: 'Não conseguimos salvar agora. Confira a sua internet e toque em Continuar de novo.',
+  agenda: 'A agenda não abriu agora. A gente te chama no WhatsApp para marcar o horário.',
+};
 
 let token = sessionStorage.getItem('ia-session');
 let state = {answers: {}};
@@ -18,133 +30,178 @@ function track(event, extra = {}) {
   window.dataLayer = window.dataLayer || [];
   window.dataLayer.push({event, form_name: 'implementacao_ia', ...extra});
 }
-
 function once(name, fn) {
   const key = 'ia-ev-' + name;
   if (sessionStorage.getItem(key)) return;
   sessionStorage.setItem(key, '1');
   fn();
 }
-
 function el(tag, text, cls) {
   const e = document.createElement(tag);
   if (text !== undefined) e.textContent = text;
   if (cls) e.className = cls;
   return e;
 }
-
-const say = q => typeof q.text === 'function' ? q.text(state.answers) : q.text;
+function icon(id) {
+  const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  s.setAttribute('viewBox', '0 0 24 24'); s.setAttribute('aria-hidden', 'true');
+  if (id === 'i-seta') { s.setAttribute('fill', 'none'); s.setAttribute('stroke', 'currentColor'); s.setAttribute('stroke-width', '2'); }
+  const u = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+  u.setAttribute('href', '#' + id);
+  s.append(u);
+  return s;
+}
+function bot(text) { const b = el('div', undefined, 'balao balao--bot'); for (const [i, part] of String(text).split('\n\n').entries()) { if (i) b.append(document.createElement('br'), document.createElement('br')); b.append(part); } return b; }
+const say = (q, a) => typeof q.text === 'function' ? q.text(a) : q.text;
 const first = name => String(name || '').trim().split(/\s+/)[0];
 
+function friendly(key, value, serverMsg) {
+  const blank = Array.isArray(value) ? !value.length : !String(value ?? '').trim();
+  if (key === 'teams') return MSG.teams;
+  if (blank) return MSG.empty;
+  if (key === 'phone') return MSG.phone;
+  if (key === 'email') return MSG.email;
+  if (key === 'personal' || key === 'business') return MSG.instagram;
+  return serverMsg || MSG.empty;
+}
+
+class SendError extends Error {}
 async function api(route, payload) {
-  const r = await fetch(API + route, {
-    method: payload ? 'POST' : 'GET',
-    headers: {...(payload ? {'Content-Type': 'application/json'} : {}), ...(token ? {Authorization: 'Bearer ' + token} : {})},
-    ...(payload ? {body: JSON.stringify(payload)} : {}),
-    signal: AbortSignal.timeout(30000),
-  });
+  let r;
+  try {
+    r = await fetch(API + route, {
+      method: payload ? 'POST' : 'GET',
+      headers: {...(payload ? {'Content-Type': 'application/json'} : {}), ...(token ? {Authorization: 'Bearer ' + token} : {})},
+      ...(payload ? {body: JSON.stringify(payload)} : {}),
+      signal: AbortSignal.timeout(30000),
+    });
+  } catch { throw new SendError(MSG.send); }
   let j = {};
   try { j = await r.json(); } catch { /* handled below */ }
   if (r.status === 401) { sessionStorage.removeItem('ia-session'); token = null; }
-  if (!r.ok || !j.ok) throw new Error(j.message || 'Não foi possível salvar. Tente novamente.');
+  if (r.status >= 500 || r.status === 429) throw new SendError(MSG.send);
+  if (!r.ok || !j.ok) throw new Error(j.message || MSG.send);
   return j;
 }
 
-function retryButton(label, fn) {
-  const b = el('button', label, 'btn');
-  b.type = 'button';
-  b.onclick = fn;
-  return b;
+function progress() {
+  const keys = path(state.answers);
+  const done = keys.filter(k => k in state.answers).length;
+  const end = ['calendar', 'end'].includes(state.next || next(state.answers));
+  const pct = end ? 100 : Math.max(4, Math.round(done / keys.length * 100));
+  bar.setAttribute('aria-valuenow', String(pct));
+  bar.firstElementChild.style.width = pct + '%';
+}
+
+function showError(msg, field, where = status) {
+  status.replaceChildren();
+  box.querySelector('#erro')?.remove();
+  const p = el('p', undefined, 'campo__erro');
+  p.id = 'erro';
+  p.setAttribute('role', 'alert');
+  p.append(icon('i-alerta'), el('span', msg));
+  where.append(p);
+  if (field) { field.setAttribute('aria-invalid', 'true'); field.setAttribute('aria-describedby', 'erro'); field.focus(); }
 }
 
 function renderHistory() {
-  history.replaceChildren(el('div', opening, 'bubble'));
-  const view = {...state.answers};
+  history.replaceChildren(bot(opening));
+  const a = state.answers;
   for (const key of Object.keys(questions)) {
-    if (!(key in view)) continue;
-    const q = questions[key];
-    history.append(el('div', typeof q.text === 'function' ? q.text(view) : q.text, 'bubble'));
-    const v = view[key];
-    history.append(el('div', key === 'phone' ? '+55 ' + v.replace(/^(\d{2})(\d{4,5})(\d{4})$/, '($1) $2-$3') : Array.isArray(v) ? v.join(' · ') : v, 'answer'));
+    if (!(key in a)) continue;
+    history.append(bot(say(questions[key], a)));
+    const v = a[key];
+    history.append(el('div', key === 'phone' ? '+55 ' + v.replace(/^(\d{2})(\d{4,5})(\d{4})$/, '($1) $2-$3') : Array.isArray(v) ? v.join(' · ') : v, 'balao balao--eu'));
   }
 }
 
 function render() {
   box.replaceChildren();
   box.onsubmit = e => e.preventDefault();
-  status.textContent = '';
+  status.replaceChildren();
   renderHistory();
+  progress();
   const key = state.next || next(state.answers);
   if (key === 'end') return finishWithoutProfile();
   if (key === 'calendar') return calendar();
   ask(key);
 }
 
+function splitOption(text) {
+  const m = text.match(/^([^:(]+?)(?::\s*|\s*\()(.+?)\)?$/);
+  return m && !text.startsWith('Ainda não sei') ? [m[1], m[2]] : [text, null];
+}
+
 function ask(key) {
   const q = questions[key];
-  const label = el('div', say(q), 'bubble');
+  const label = bot(say(q, state.answers));
   label.id = 'pergunta';
   label.tabIndex = -1;
-  box.append(label);
+  history.append(label);
   let selected = Array.isArray(state.answers[key]) ? [...state.answers[key]] : [];
   let field;
-  const button = el('button', 'Continuar', 'btn');
+  const isLast = path(state.answers).at(-1) === key && key === 'email';
+  const button = el('button', isLast ? 'Ver horários ' : 'Continuar ', 'btn btn--primary btn--block');
   button.type = 'submit';
+  button.append(icon('i-seta'));
 
   if (q.options) {
-    const group = el('div', undefined, 'options');
-    group.setAttribute('role', 'group');
+    const group = el('fieldset', undefined, 'opcoes resposta');
     group.setAttribute('aria-labelledby', 'pergunta');
+    // Arrow keys only move the choice; Enter or Space confirms it (single choice has no button, as in the prototype).
+    let viaArrow = false;
+    group.onkeydown = e => {
+      viaArrow = e.key.startsWith('Arrow');
+      if (!q.multi && (e.key === 'Enter' || e.key === ' ') && selected.length) { e.preventDefault(); submit(); }
+    };
+    group.onpointerdown = () => { viaArrow = false; };
     for (const text of q.options) {
-      const b = el('button', text, 'option');
-      b.type = 'button';
-      b.setAttribute('aria-pressed', String(selected.includes(text)));
-      b.onclick = () => {
+      const [title, small] = splitOption(text);
+      const opt = el('label', undefined, q.multi ? 'opcao' : 'opcao opcao--radio');
+      const input = el('input');
+      input.type = q.multi ? 'checkbox' : 'radio';
+      input.name = key;
+      input.value = text;
+      input.checked = selected.includes(text);
+      const caixa = el('span', undefined, 'opcao__caixa');
+      caixa.append(q.multi ? icon('i-check') : el('i'));
+      const txt = el('span');
+      txt.append(el('b', title));
+      if (small) txt.append(el('small', small));
+      opt.append(input, caixa, txt);
+      input.onchange = () => {
         if (busy) return;
-        if (q.multi) {
-          selected = selected.includes(text) ? selected.filter(x => x !== text) : [...selected, text];
-          b.setAttribute('aria-pressed', String(selected.includes(text)));
-        } else {
-          selected = [text];
-          group.querySelectorAll('.option').forEach(o => o.setAttribute('aria-pressed', String(o === b)));
-          submit();
-        }
+        if (q.multi) selected = [...group.querySelectorAll('input:checked')].map(i => i.value);
+        else { selected = [text]; if (!viaArrow) submit(); }
       };
-      group.append(b);
+      group.append(opt);
     }
     box.append(group);
     if (q.multi) box.append(button);
   } else {
-    const wrap = el('div', undefined, key === 'phone' ? 'field phone' : 'field');
-    if (key === 'phone') wrap.append(el('span', '+55', 'ddi'));
-    field = el(q.type === 'textarea' ? 'textarea' : 'input');
-    if (q.type !== 'textarea') field.type = q.type || 'text';
+    field = el(q.type === 'textarea' ? 'textarea' : 'input', undefined, 'input');
+    if (q.type !== 'textarea') field.type = q.type === 'email' ? 'email' : q.type === 'tel' ? 'tel' : 'text';
     field.placeholder = q.placeholder;
     field.setAttribute('aria-labelledby', 'pergunta');
-    field.required = true;
     field.maxLength = key === 'pain' ? 2000 : 200;
     if (q.autocomplete) field.autocomplete = q.autocomplete;
     if (key === 'phone') field.inputMode = 'tel';
     if (key === 'email') field.inputMode = 'email';
     if (key === 'personal' || key === 'business') { field.autocapitalize = 'none'; field.spellcheck = false; }
-    wrap.append(field);
-    box.append(wrap, button);
+    field.oninput = () => { field.removeAttribute('aria-invalid'); };
+    if (key === 'phone') { const t = el('div', undefined, 'telefone'); t.append(el('span', '+55', 'ddi'), field); box.append(t); }
+    else box.append(field);
+    box.append(button);
   }
 
   async function submit() {
     if (busy) return;
+    const raw = q.options ? (q.multi ? selected : selected[0]) : field.value;
     let value;
-    try {
-      value = validate(key, q.options ? (q.multi ? selected : selected[0]) : field.value);
-    } catch (e) {
-      status.textContent = e.message;
-      field?.setAttribute('aria-invalid', 'true');
-      field?.focus();
-      return;
-    }
+    try { value = validate(key, raw); } catch (e) { showError(friendly(key, raw, e.message), field); return; }
     busy = true;
     button.disabled = true;
-    status.textContent = 'Salvando…';
+    status.replaceChildren(el('span', 'Salvando…'));
     try {
       const j = await api('answer', {key, value});
       once('form_start', () => track('form_start'));
@@ -152,13 +209,15 @@ function ask(key) {
       state = j;
       render();
     } catch (e) {
-      status.textContent = e.message;
-      if (!token) box.append(retryButton('Começar de novo', () => location.reload()));
+      showError(e instanceof SendError ? MSG.send : (e.message || MSG.send));
+      if (!token) { const again = el('button', 'Começar de novo', 'btn btn--primary btn--block'); again.type = 'button'; again.onclick = () => location.reload(); box.append(again); }
+      if (!q.multi && q.options) group_reset();
     } finally {
       busy = false;
       button.disabled = false;
     }
   }
+  function group_reset() { box.querySelectorAll('input[type=radio]').forEach(i => { i.checked = false; }); selected = []; }
 
   box.onsubmit = e => { e.preventDefault(); submit(); };
   label.focus({preventScroll: true});
@@ -167,11 +226,9 @@ function ask(key) {
 }
 
 function finishWithoutProfile() {
-  const msg = el('div', undefined, 'bubble');
-  msg.append(el('p', `Obrigado, ${first(state.answers.name)}! Pelo que você contou, a implementação ainda não é o melhor passo para você agora.`),
-    el('p', 'Quando o momento mudar, é só preencher de novo. A gente vai gostar de conversar.'));
+  const msg = bot(`Obrigado, ${first(state.answers.name)}! Pelo que você contou, a implementação ainda não é o melhor passo para você agora.\n\nQuando o momento mudar, é só preencher de novo. A gente vai gostar de conversar.`);
   msg.tabIndex = -1;
-  box.append(msg);
+  history.append(msg);
   msg.focus({preventScroll: true});
   msg.scrollIntoView({block: 'center', behavior: 'instant'});
 }
@@ -180,50 +237,56 @@ const dayFmt = new Intl.DateTimeFormat('pt-BR', {timeZone: 'America/Sao_Paulo', 
 const dayLong = new Intl.DateTimeFormat('pt-BR', {timeZone: 'America/Sao_Paulo', weekday: 'long', day: 'numeric', month: 'long'});
 const hourFmt = new Intl.DateTimeFormat('pt-BR', {timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit'});
 
+function whatsappButton(text) {
+  const wa = el('a', text, 'btn btn--primary btn--block');
+  wa.href = WHATSAPP;
+  wa.rel = 'noopener';
+  return wa;
+}
+
 function booked(start) {
   box.replaceChildren();
   const d = new Date(start);
-  const msg = el('div', `Diagnóstico marcado para ${dayLong.format(d)} às ${hourFmt.format(d)}. O convite chega no seu e-mail, e a gente confirma pelo WhatsApp.`, 'bubble');
+  const msg = bot(`Diagnóstico marcado para ${dayLong.format(d)} às ${hourFmt.format(d)}. O convite chega no seu e-mail, e a gente confirma pelo WhatsApp.`);
   msg.tabIndex = -1;
-  const wa = el('a', 'Confirmar no WhatsApp', 'btn');
-  wa.href = WHATSAPP;
-  wa.rel = 'noopener';
-  box.append(msg, wa);
+  history.append(msg);
+  box.append(whatsappButton('Confirmar no WhatsApp'));
   msg.focus({preventScroll: true});
 }
 
 async function calendar() {
   if (state.booking) return booked(state.booking.start);
-  const intro = el('div', undefined, 'bubble');
-  intro.append(el('p', `Pronto, ${first(state.answers.name)}! Já dá para marcar o seu diagnóstico gratuito: uma conversa por vídeo em que você descobre qual time começar.`),
-    el('p', 'Escolha o melhor horário (horário de Brasília):'));
+  const intro = bot(`Pronto, ${first(state.answers.name)}! Já dá para marcar o seu diagnóstico gratuito: uma conversa por vídeo em que você descobre qual time começar.\n\nEscolha o melhor horário (horário de Brasília):`);
   intro.id = 'agenda-titulo';
   intro.tabIndex = -1;
-  const cal = el('div', 'Consultando horários…', 'calendar');
+  history.append(intro);
+  const cal = el('div', undefined, 'agenda agenda--viva');
   cal.setAttribute('aria-labelledby', 'agenda-titulo');
-  box.append(intro, cal);
+  cal.setAttribute('aria-busy', 'true');
+  cal.append(el('span', 'Consultando horários…'));
+  box.append(cal);
   intro.focus({preventScroll: true});
   intro.scrollIntoView({block: 'start', behavior: 'instant'});
   let j;
-  try {
-    j = await api('slots');
-  } catch (e) {
-    cal.replaceChildren(el('p', e.message), retryButton('Tentar de novo', () => render()));
+  try { j = await api('slots'); } catch {
+    cal.remove();
+    showError(MSG.agenda, null, box);
+    box.append(whatsappButton('Falar no WhatsApp'));
     return;
   }
+  cal.removeAttribute('aria-busy');
   cal.replaceChildren();
   if (!j.slots.length) {
-    cal.append(el('p', 'Os próximos dias estão cheios. Chame a gente no WhatsApp que a gente encontra um horário.'));
-    const wa = el('a', 'Falar no WhatsApp', 'btn');
-    wa.href = WHATSAPP;
-    cal.append(wa);
+    cal.remove();
+    showError(MSG.agenda, null, box);
+    box.append(whatsappButton('Falar no WhatsApp'));
     return;
   }
   const days = [...new Set(j.slots.map(s => s.day))];
-  const dayRow = el('div', undefined, 'days');
+  const dayRow = el('div', undefined, 'dias');
   dayRow.setAttribute('role', 'group');
   dayRow.setAttribute('aria-label', 'Dia');
-  const hours = el('div', undefined, 'hours');
+  const hours = el('div', undefined, 'horas');
   hours.setAttribute('role', 'group');
   hours.setAttribute('aria-label', 'Horário');
   const action = el('div', undefined, 'book');
@@ -235,32 +298,32 @@ async function calendar() {
     action.replaceChildren();
     chosen = null;
     for (const slot of j.slots.filter(s => s.day === day)) {
-      const b = el('button', hourFmt.format(new Date(slot.start)), 'option slot');
+      const b = el('button', hourFmt.format(new Date(slot.start)), 'chip');
       b.type = 'button';
       b.setAttribute('aria-pressed', 'false');
       b.onclick = () => {
         hours.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
         chosen = slot.start;
         action.replaceChildren();
-        const confirm = el('button', 'Confirmar horário', 'btn');
+        const confirm = el('button', 'Confirmar horário', 'btn btn--primary btn--block');
         confirm.type = 'button';
         if (!j.booking_enabled) {
           confirm.disabled = true;
-          action.append(confirm, el('p', 'Prévia para revisão: a marcação está desligada e nenhum convite é enviado.', 'note'));
+          action.append(confirm, el('p', 'Prévia para revisão: a marcação está desligada e nenhum convite é enviado.', 'agenda__nota'));
           return;
         }
         confirm.onclick = async () => {
           if (busy || !chosen) return;
           busy = true;
           confirm.disabled = true;
-          status.textContent = 'Marcando…';
+          status.replaceChildren(el('span', 'Marcando…'));
           try {
             const r = await api('book', {start: chosen});
             once('schedule', () => track('schedule', {event_id: state.event_id}));
-            status.textContent = '';
+            status.replaceChildren();
             booked(r.start);
           } catch (e) {
-            status.textContent = e.message;
+            showError(e instanceof SendError ? MSG.agenda : e.message);
             confirm.disabled = false;
           } finally {
             busy = false;
@@ -273,7 +336,7 @@ async function calendar() {
   }
 
   for (const day of days) {
-    const b = el('button', dayFmt.format(new Date(day + 'T15:00:00Z')), 'option day');
+    const b = el('button', dayFmt.format(new Date(day + 'T15:00:00Z')), 'chip');
     b.type = 'button';
     b.onclick = () => pickDay(day, b);
     dayRow.append(b);
@@ -291,8 +354,12 @@ async function boot() {
     render();
   } catch (e) {
     if (had && !token) return boot(); // expired or invalid session: start a fresh one
-    status.textContent = e.message;
-    box.replaceChildren(retryButton('Tentar de novo', () => location.reload()));
+    renderHistory();
+    showError(MSG.send);
+    const again = el('button', 'Tentar de novo', 'btn btn--primary btn--block');
+    again.type = 'button';
+    again.onclick = () => location.reload();
+    box.replaceChildren(again);
   }
 }
 
