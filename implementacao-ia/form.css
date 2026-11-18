@@ -1,0 +1,35 @@
+/* Formulário em conversa | pele DS v2 | galeria de estados (protótipo, sem envio) | Nala 18/11/2026 */
+.estados-form{padding-top:var(--s10);padding-bottom:var(--s16)}
+.entrada{display:grid;gap:var(--s3)}
+.opcao--radio .opcao__caixa{border-radius:50%}
+.opcao--radio input:checked ~ .opcao__caixa{background:var(--gold);border-color:var(--gold)}
+.opcao--radio .opcao__caixa i{width:8px;height:8px;border-radius:50%;background:var(--ink);opacity:0}
+.opcao--radio input:checked ~ .opcao__caixa i{opacity:1}
+textarea.input{min-height:112px;resize:vertical}
+.agenda{border:1px dashed var(--ctl);border-radius:var(--r-card);padding:var(--s6);text-align:center;font:500 12px/1.6 var(--f-mono);letter-spacing:.07em;text-transform:uppercase;color:var(--fg-2);background:var(--surface)}
+.agenda b{display:block;color:var(--fg);font-weight:500;margin-bottom:var(--s2)}
+.cabeca-form .wrap{display:flex;justify-content:space-between;align-items:center}
+.pular{justify-self:start}
+
+/* Conversa funcional (Ono): um balão por vez sobre o DS v2. */
+.estados-form .conversa{padding-left:0;padding-right:0}
+.historico{display:grid;gap:var(--s4)}
+#conversation:empty{display:none}
+.opcoes{border:0;padding:0;margin:0;display:grid;gap:var(--s2);min-width:0}
+.opcoes legend{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.dias,.horas{display:flex;flex-wrap:wrap;gap:var(--s2)}
+.dias{margin-bottom:var(--s4)}
+.chip{min-height:var(--hit);min-width:92px;padding:10px 14px;border:1px solid var(--ctl);border-radius:var(--r-ctl);background:var(--surface);color:var(--fg);font:500 15px/1.2 var(--f-sans);cursor:pointer}
+.chip:hover{border-color:var(--fg)}
+.chip[aria-pressed=true]{background:var(--gold);border-color:var(--gold);color:var(--ink)}
+.chip:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+.agenda--viva{text-align:left;text-transform:none;letter-spacing:0;font:400 16px/1.5 var(--f-sans);color:var(--fg)}
+.agenda__nota{margin-top:var(--s3);color:var(--fg-2);font-size:var(--t-small)}
+.status{min-height:1.5em;margin:0;color:var(--fg-2);font-size:var(--t-small)}
+.status:empty{display:none}
+.balao:focus{outline:none}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.btn[disabled]{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none}
+/* avatar no primeiro balão: o histórico fica num contêiner, então a regra irmã do DS não alcança o primeiro filho */
+.historico>.balao--bot:first-child::before{content:"";position:absolute;left:-44px;top:0;width:32px;height:32px;border-radius:var(--r-ctl);border:1px solid var(--ctl);background:var(--surface)}
+.historico>.balao--bot:first-child::after{content:"";position:absolute;left:-44px;top:0;width:32px;height:32px;background:var(--fg);-webkit-mask:url(assets/logo-original.png) center/36px no-repeat;mask:url(assets/logo-original.png) center/36px no-repeat}
