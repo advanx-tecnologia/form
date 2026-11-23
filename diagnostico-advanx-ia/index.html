@@ -659,7 +659,8 @@ function insta(el,id,q){
   ig.addEventListener('keydown',function(e){ if(e.key==='Enter'&&!btn.disabled){ e.preventDefault(); btn.click(); } });
   btn.addEventListener('click',function(){ if(S.busy) return; S.busy=true; ig.blur(); S.ans.instagram=clean(ig.value); startPerfil(S.ans.instagram); next(); });
 }
-function mask(v){ var d=v.replace(/\D/g,'').slice(0,11); if(d.length<3) return d?'('+d:''; var p='('+d.slice(0,2)+') '; if(d.length<=6) return p+d.slice(2); var k=d.length>10?7:6; return p+d.slice(2,k)+'-'+d.slice(k); }
+var DDDS_BR='11 12 13 14 15 16 17 18 19 21 22 24 27 28 31 32 33 34 35 37 38 41 42 43 44 45 46 47 48 49 51 53 54 55 61 62 63 64 65 66 67 68 69 71 73 74 75 77 79 81 82 83 84 85 86 87 88 89 91 92 93 94 95 96 97 98 99'.split(' ');function celularBR(v){var d=String(v==null?'':v).split('@')[0].replace(/\D/g,'');if(d.length===13&&d.slice(0,2)==='55')d=d.slice(2);if(d.length===12&&d.charAt(0)==='0')d=d.slice(1);return /^[1-9]{2}9\d{8}$/.test(d)&&DDDS_BR.indexOf(d.slice(0,2))!==-1&&!/^(\d)\1+$/.test(d.slice(2))?'55'+d:''}function digitosCelular(v){var d=String(v==null?'':v).replace(/\D/g,'');if(d.length>11&&d.slice(0,2)==='55')d=d.slice(2);if(d.length>11&&d.charAt(0)==='0')d=d.slice(1);return d.slice(0,11)}function mascaraCelular(v){var d=digitosCelular(v);if(!d)return'';if(d.length<3)return'('+d;var p='('+d.slice(0,2)+') ';if(d.length<=7)return p+d.slice(2);return p+d.slice(2,7)+'-'+d.slice(7)}
+function mask(v){ return mascaraCelular(v); }
 function contact(el,id,q){
   var adv=id==='contato';
   el.innerHTML=head(q)+'<form class="fields" id="cf" novalidate>'+
@@ -670,7 +671,7 @@ function contact(el,id,q){
     '<button type="submit" hidden></button></form>'+
     '<div class="dock"><button class="btn btn-primary" id="go" type="button">'+(adv?'Gerar meu resultado':'Continuar')+' '+ARR+'</button></div>';
   var nome=$('#nome',el), wa=$('#wa',el), em=$('#em',el), btn=$('#go',el);
-  var rules=[[$('#f-nome',el),function(){return nome.value.trim().length>=2;}],[$('#f-wa',el),function(){var d=wa.value.replace(/\D/g,'');return d.length===10||d.length===11;}],[$('#f-em',el),function(){return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em.value.trim());}]];
+  var rules=[[$('#f-nome',el),function(){return nome.value.trim().length>=2;}],[$('#f-wa',el),function(){return !!celularBR(wa.value);}],[$('#f-em',el),function(){return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em.value.trim());}]];
   rules.forEach(function(r){ var i=$('input',r[0]); i.addEventListener('blur',function(){ if(i.value.trim()){ r[0].classList.toggle('err',!r[1]()); r[0].classList.toggle('ok',r[1]()); } }); i.addEventListener('input',function(){ if(r[1]()){ r[0].classList.remove('err'); r[0].classList.add('ok'); } }); });
   wa.addEventListener('input',function(){ wa.value=mask(wa.value); });
   $('#cf',el).addEventListener('submit',function(e){ e.preventDefault(); btn.click(); });
@@ -679,11 +680,11 @@ function contact(el,id,q){
     var bad=rules.filter(function(r){ var ok=r[1](); r[0].classList.remove('err'); void r[0].offsetWidth; r[0].classList.toggle('err',!ok); r[0].classList.toggle('ok',ok); return !ok; });
     if(bad.length){ buzz([12,50,12]); $('input',bad[0][0]).focus(); return; }
     S.busy=true; if(document.activeElement) document.activeElement.blur();
-    S.ans.nome=nome.value.trim(); S.ans.whatsapp=wa.value.replace(/\D/g,''); S.ans.email=em.value.trim().toLowerCase();
+    S.ans.nome=nome.value.trim(); S.ans.whatsapp=celularBR(wa.value).slice(2); S.ans.email=em.value.trim().toLowerCase();
     if(!adv){ next(); return; }
     btn.disabled=true; btn.textContent='Salvando seus dados...';
     postJSON(CONFIG.LEAD_URL,{submission_id:leadId(),respostas:S.ans,utm:UTM},20000).then(function(r){
-      if(!r||r.ok!==true||!r.lead_id||r.crm_ok!==true) throw new Error('Persistência não confirmada');
+      if(!r||r.ok!==true||!r.lead_id) throw new Error('Persistência não confirmada');
       S.leadDbId=r.lead_id; if(adv) S.score=calcScore(S.ans);
       track('Lead',{tier:tier()}); next();
     }).catch(function(){ S.busy=false; btn.disabled=false; btn.textContent='Tentar novamente';
@@ -871,7 +872,7 @@ var R={
   fim_nao:function(el){
     el.innerHTML='<div class="end"><span class="loader"></span><h2>Salvando seus dados...</h2></div>';
     postJSON(CONFIG.LEAD_URL,{submission_id:leadId(),respostas:S.ans,utm:UTM},20000).then(function(r){
-      if(!r||r.ok!==true||!r.lead_id||r.crm_ok!==true) throw new Error('Persistência não confirmada');
+      if(!r||r.ok!==true||!r.lead_id) throw new Error('Persistência não confirmada');
       S.leadDbId=r.lead_id; track('Lead',{tier:'nao_advogado'});
       el.innerHTML='<div class="end"><div class="ok-mark">'+CK+'</div><h2>Recebemos, '+esc(first())+'.</h2><p>Nossa equipe vai entender seu caso e retorna pelo WhatsApp em horário comercial.</p></div>';
       later(function(){burst(30);},300);

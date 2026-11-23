@@ -4,7 +4,8 @@ const ORIGIN='https://form.advanx.com.br';
 const json=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','Access-Control-Allow-Origin':ORIGIN}});
 const texto=v=>String(v??'').trim();
 const erro=(codigo,status=400)=>json({ok:false,erro:codigo},status);
-const telefone=v=>{const n=texto(v).replace(/\D/g,'').replace(/^55(?=\d{10,11}$)/,'');return /^\d{10,11}$/.test(n)?'+55'+n:null};
+const DDDS=new Set('11 12 13 14 15 16 17 18 19 21 22 24 27 28 31 32 33 34 35 37 38 41 42 43 44 45 46 47 48 49 51 53 54 55 61 62 63 64 65 66 67 68 69 71 73 74 75 77 79 81 82 83 84 85 86 87 88 89 91 92 93 94 95 96 97 98 99'.split(' '));
+const telefone=v=>{let d=texto(v).split('@')[0].replace(/\D/g,'');if(d.length===13&&d.startsWith('55'))d=d.slice(2);if(d.length===12&&d.startsWith('0'))d=d.slice(1);return /^[1-9]{2}9\d{8}$/.test(d)&&DDDS.has(d.slice(0,2))&&new Set(d.slice(2)).size>1?'+55'+d:null};
 const handle=v=>/^[a-z0-9._]{1,30}$/.test(texto(v))?texto(v):null;
 const foto=v=>typeof v==='string'&&/^https:\/\//.test(v)?v:'';
 async function ler(req){if(Number(req.headers.get('content-length')||0)>20000)throw new Error('payload');const raw=await req.text();if(raw.length>20000)throw new Error('payload');return JSON.parse(raw)}
@@ -31,18 +32,12 @@ async function analise(req,env){const b=await ler(req),h=handle(b?.lead?.instagr
   const out=await r.json();let a;try{a=JSON.parse(out.choices?.[0]?.message?.content||'')}catch{return erro('analise_invalida',502)}
   a=validarAnalise(a);return a?json({ok:true,analise:a}):erro('analise_invalida',502);
 }
-async function supabase(env,path,method='GET',body){const r=await requisitar(env.SUPABASE_URL+'/rest/v1/'+path,{method,headers:{apikey:env.SUPABASE_SERVICE_ROLE_KEY,Authorization:'Bearer '+env.SUPABASE_SERVICE_ROLE_KEY,'Content-Type':'application/json',Prefer:'return=representation'},body:body?JSON.stringify(body):undefined});if(!r.ok)throw new Error('supabase_'+r.status);return r.json()}
-async function lead(req,env){const b=await ler(req),a=b.respostas||{},id=texto(b.submission_id),t=telefone(a.whatsapp),nome=texto(a.nome).slice(0,120),email=texto(a.email).toLowerCase().slice(0,180),ig=handle(a.instagram),utm=b.utm||{};
+async function lead(req,env,ctx){const b=await ler(req),a=b.respostas||{},id=texto(b.submission_id),t=telefone(a.whatsapp),nome=texto(a.nome).slice(0,120),email=texto(a.email).toLowerCase().slice(0,180),ig=handle(a.instagram),utm=b.utm||{};
   if(!/^[a-zA-Z0-9-]{16,60}$/.test(id)||nome.length<2||!t||!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)||!['sim','nao'].includes(a.perfil)||(a.perfil==='sim'&&!ig))return erro('lead_invalido');
-  const select='id,nome,telefone,email,origem,comentario,status_reuniao,data_reuniao';
-  const found=await supabase(env,'dados_cliente?select='+select+'&submission_id=eq.'+encodeURIComponent(id)+'&limit=1');
-  const existing=found[0]||null;
   const respostas={advogado:a.perfil,dificuldades:Array.isArray(a.dores)?a.dores.filter(x=>typeof x==='string').slice(0,5):[],nota:Number.isInteger(a.nota)?a.nota:null,meta:texto(a.meta),investimento:texto(a.investimento),trabalho:texto(a.trabalho),intuito:texto(a.intuito)};
-  const comentario='[Diagnóstico Advanx IA] '+JSON.stringify(respostas);
-  const data={nome,telefone:t,email,instagram:ig||null,origem:'Diagnóstico Advanx IA',funil_lead:'Diagnóstico Advanx IA',nicho:a.perfil==='sim'?'Jurídico':'Não advogado',tipo_lead:'inbound',submission_id:id,fonte:texto(utm.utm_source||'direto').slice(0,150),campanha:texto(utm.utm_campaign).slice(0,150),utm_medium:texto(utm.utm_medium).slice(0,150),anuncio:texto(utm.utm_content).slice(0,150),fbclid:texto(utm.fbclid).slice(0,250),gclid:texto(utm.gclid).slice(0,250),consegue_investir:texto(a.investimento),desafio:respostas.dificuldades.join(', '),comentario:existing?.comentario?[existing.comentario,comentario].join('\n').slice(0,10000):comentario,updated_at:new Date().toISOString()};
-  let rows;if(existing){rows=await supabase(env,'dados_cliente?id=eq.'+existing.id,'PATCH',data)}else{data.created_at=new Date().toISOString();data.ia_active=false;data.followup_active=false;rows=await supabase(env,'dados_cliente','POST',data)}
-  if(!rows?.[0]?.id)throw new Error('lead_sem_id');
-  const leadId=rows[0].id;
+  // Grava no banco (edge function receber-lead) e no CRM ao mesmo tempo; responde quando o primeiro confirmar e o outro segue por trás.
+  const banco=requisitar(env.LEAD_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({formulario:'Diagnóstico Advanx IA',nome,telefone:t,email,instagram:ig||null,nicho:a.perfil==='sim'?'Jurídico':'Não advogado',submission_id:id,utm_source:texto(utm.utm_source).slice(0,150)||null,utm_medium:texto(utm.utm_medium).slice(0,150)||null,utm_campaign:texto(utm.utm_campaign).slice(0,150)||null,utm_content:texto(utm.utm_content).slice(0,150)||null,utm_term:texto(utm.utm_term).slice(0,150)||null,fbclid:texto(utm.fbclid).slice(0,250)||null,gclid:texto(utm.gclid).slice(0,250)||null,respostas:{...respostas,trabalho:respostas.trabalho||null,intuito:respostas.intuito||null}})},10000)
+    .then(async r=>{let j={};try{j=await r.json()}catch{}if(!r.ok||j.ok!==true||!j.contato_id)throw new Error('banco_'+r.status+(j.erro?'_'+String(j.erro).slice(0,30):''));return j.contato_id});
   // O webhook mapeia apenas campos escalares de primeiro nível. external_id deduplica o envio.
   const rotulos={
     tempo:'Falta de tempo',tecnologia:'Falta de aptidão com tecnologia',recursos:'Falta de recursos financeiros',
@@ -52,20 +47,23 @@ async function lead(req,env){const b=await ler(req),a=b.respostas||{},id=texto(b
     ate500:'Até R$ 500',ate1000:'Até R$ 1.000',ate5000:'Até R$ 5.000',
     '5000mais':'Acima de R$ 5.000',sem:'Não tenho condições de investir agora'
   };
-  const crmBody={nome,telefone:t,email,external_id:id,origem:'Diagnóstico Advanx IA',lead_id_supabase:String(leadId)};
+  const crmBody={nome,telefone:t,email,external_id:id,origem:'Diagnóstico Advanx IA'};
   if(ig)crmBody.ig='@'+ig;
   if(respostas.dificuldades.length)crmBody.trava=respostas.dificuldades.map(x=>rotulos[x]||x).join('; ');
   if(respostas.nota!==null)crmBody.nota=String(respostas.nota);
   if(respostas.meta)crmBody.contratos=rotulos[respostas.meta]||respostas.meta;
   if(respostas.investimento)crmBody.investimento=rotulos[respostas.investimento]||respostas.investimento;
-  const crm=await requisitar(env.DESKCOMM_WEBHOOK_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(crmBody)},15000);
-  if(!crm.ok)return json({ok:false,lead_id:leadId,crm_ok:false,erro:'crm_indisponivel'},502);
-  // Confirmar persistência exata no Supabase; webhook DeskComm só confirma aceite HTTP.
-  const check=await supabase(env,'dados_cliente?select=id,submission_id&'+'id=eq.'+leadId+'&limit=1');
-  if(check?.[0]?.submission_id!==id)throw new Error('readback');
-  return json({ok:true,lead_id:leadId,crm_ok:true});
+  const crm=requisitar(env.DESKCOMM_WEBHOOK_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(crmBody)},10000)
+    .then(r=>{if(!r.ok)throw new Error('crm_'+r.status);return true});
+  const avisa=(onde,p)=>p.catch(e=>{console.error('diagnostico_lead_falha',onde,String(e?.message||e).slice(0,60));throw e});
+  const pb=avisa('banco',banco),pc=avisa('crm',crm);
+  let primeiro;try{primeiro=await Promise.any([pb.then(cid=>({cid})),pc.then(()=>({cid:null}))])}catch{console.error('diagnostico_lead_falha','banco_e_crm');return erro('indisponivel',503)}
+  const resto=Promise.allSettled([pb,pc]);if(ctx?.waitUntil)ctx.waitUntil(resto);
+  // Se o CRM confirmou primeiro, espera o banco no máximo 1,5 s só para devolver o id dele.
+  let cid=primeiro.cid;if(!cid)cid=await Promise.race([pb.catch(()=>null),new Promise(r=>setTimeout(()=>r(null),1500))]);
+  return json({ok:true,lead_id:cid||id,contato_id:cid||null});
 }
-export default {async fetch(req,env){const u=new URL(req.url);if(u.hostname!=='form.advanx.com.br'&&!env.LOCAL_TEST)return erro('host_invalido',403);
+export default {async fetch(req,env,ctx){const u=new URL(req.url);if(u.hostname!=='form.advanx.com.br'&&!env.LOCAL_TEST)return erro('host_invalido',403);
   if(u.pathname===PREFIX+'/'&&req.method==='GET'){
     if(!/^[a-f0-9]{40}$/.test(env.SOURCE_SHA||''))return erro('fonte_nao_configurada',503);
     const r=await requisitar('https://raw.githubusercontent.com/advanx-tecnologia/form/'+env.SOURCE_SHA+'/diagnostico-advanx-ia/index.html',{},10000);
@@ -76,5 +74,5 @@ export default {async fetch(req,env){const u=new URL(req.url);if(u.hostname!=='f
   if(req.headers.get('origin')!==ORIGIN)return erro('origem_invalida',403);
   if(!env.RATE_LIMITER)return erro('limite_indisponivel',503);
   const ip=req.headers.get('cf-connecting-ip')||'unknown';const limit=await env.RATE_LIMITER.limit({key:ip});if(!limit.success)return erro('limite_excedido',429);
-  try{if(u.pathname===PREFIX+'/api/perfil')return await perfil(req,env);if(u.pathname===PREFIX+'/api/analise')return await analise(req,env);if(u.pathname===PREFIX+'/api/lead')return await lead(req,env);return erro('rota_inexistente',404)}catch(e){console.error('diagnostico',u.pathname,e.name||'erro');return erro('indisponivel',503)}
+  try{if(u.pathname===PREFIX+'/api/perfil')return await perfil(req,env);if(u.pathname===PREFIX+'/api/analise')return await analise(req,env);if(u.pathname===PREFIX+'/api/lead')return await lead(req,env,ctx);return erro('rota_inexistente',404)}catch(e){console.error('diagnostico',u.pathname,e.name||'erro');return erro('indisponivel',503)}
 }};
